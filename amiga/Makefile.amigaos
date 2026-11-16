@@ -13,7 +13,7 @@ BUILD ?= build/amigaos
 DIR = $(BUILD)/$(NAME)
 
 SRC_NAMES = about advanced alleg2 area army asm autoplay back basicopt bigdata capture chat checksum code config connect controls cursor decal dialog disk disp distor dnsutil error exec2 exit fighter game gfxmode grad graphics help httputil info init initrand internet joystick keyboard keyexch lang langde langdk langen langfr langpl language level logcli lw6 main map maptex menu mesh message mouse move music mutxunix netconf netgame netkey netmap netmess netplay network options palette parser path ping pion play profile protocol random rules score serial sock2cli sockex sockunix sound speeds startinf startup team texture thrdunix ticker lwtime viewport volume watchdog wave wwwcli x11icon   
-SRCS = $(addprefix src/,$(addsuffix .c,$(SRC_NAMES))) amiga/amiga_start.c amiga/amiga_net.c amiga/a4compat.c
+SRCS = $(addprefix src/,$(addsuffix .c,$(SRC_NAMES))) amiga/amiga_start.c amiga/amiga_net.c
 OBJS = $(patsubst %.c,$(BUILD)/obj/%.o,$(SRCS))
 
 SOFT = -specs=$(A4)/specs/m68k-soft-m68040.specs
@@ -28,7 +28,7 @@ DEFS = -DUNIX -D__amigaos__ -DLW_AMIGA \
 CFLAGS = -noixemul -m68040 $(SOFT) -O2 -fomit-frame-pointer -fno-tree-loop-distribute-patterns \
 	-fcommon -Wall -Wno-unused -Wno-pointer-sign -Wno-format-truncation -Wno-char-subscripts \
 	-Iamiga -Isrc -I$(A4)/include $(DEFS) \
-	-include amiga/lw_amiga.h -include amiga/a4compat.h
+	-include amiga/lw_amiga.h
 LIBS = $(A4OUT)/liballeg.a -lpthread -lm
 
 all: $(DIR)/$(NAME) package
