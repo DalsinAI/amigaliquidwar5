@@ -1,0 +1,35 @@
+# Liquid War 5 for GFOS: 68040, libnix, soft float, Allegro 4 from
+# gfopenallegro (allegro4.library on acgame.library).
+#   make -f amiga/Makefile.amigaos STOVE=<stove prefix> A4=<gfopenallegro/allegro4>
+STOVE ?= $(HOME)/AmiCradle/kitchen/stoves/os32-gcc16-open6/prefix
+A4 ?= ../gfopenallegro/allegro4
+A4LIB ?= $(A4)/build-amiga
+CC = $(STOVE)/bin/m68k-amigaos-gcc
+OUT ?= build/amigaos
+
+SRC_NAMES = about advanced alleg2 area army asm autoplay back basicopt bigdata capture chat checksum code config connect controls cursor decal dialog disk disp distor dnsutil error exec2 exit fighter game gfxmode grad graphics help httputil info init initrand internet joystick keyboard keyexch lang langde langdk langen langfr langpl language level logcli lw6 main map maptex menu mesh message mouse move music mutxunix netconf netgame netkey netmap netmess netplay network options palette parser path ping pion play profile protocol random rules score serial sock2cli sockex sockunix sound speeds startinf startup team texture thrdunix ticker lwtime viewport volume watchdog wave wwwcli x11icon   
+SRCS = $(addprefix src/,$(addsuffix .c,$(SRC_NAMES))) amiga/amiga_start.c amiga/amiga_net.c
+OBJS = $(patsubst %.c,$(OUT)/obj/%.o,$(SRCS))
+
+SOFT = -specs=$(A4)/specs/m68k-soft-m68040.specs
+DEFS = -DUNIX -D__amigaos__ -DLW_AMIGA
+CFLAGS = -noixemul -m68040 $(SOFT) -O2 -fomit-frame-pointer -fno-tree-loop-distribute-patterns \
+	-fcommon -Wall -Wno-unused -Wno-pointer-sign -Wno-format-truncation \
+	-Iamiga/include -Iamiga -Isrc -I$(A4)/include $(DEFS)
+LIBS = $(A4LIB)/liballeg.a -lpthread -lm
+
+all: $(OUT)/LiquidWar
+
+$(OUT)/LiquidWar: $(OBJS)
+	$(CC) -noixemul -m68040 $(SOFT) -o $@ $(OBJS) $(LIBS)
+
+$(OUT)/obj/%.o: %.c amiga/base.h
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+amiga/base.h: src/base.h.in
+	sed 's/@VERSION@/5.6.7/' $< > $@
+
+clean:
+	rm -rf $(OUT) amiga/base.h
+.PHONY: all clean
