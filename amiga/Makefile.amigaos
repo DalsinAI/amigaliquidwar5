@@ -1,15 +1,20 @@
 # Liquid War 5 for GFOS: 68040, libnix, soft float, Allegro 4 from
-# gfopenallegro (allegro4.library on acgame.library).
-#   make -f amiga/Makefile.amigaos STOVE=<stove prefix> A4=<gfopenallegro/allegro4>
-STOVE ?= $(HOME)/AmiCradle/kitchen/stoves/os32-gcc16-open6/prefix
+# gfopenallegro (allegro4.library on acgame.library), both in the drawer's
+# Libs/ (package/build-amiga.sh builds them at the commits it pins).
+#   make -f amiga/Makefile.amigaos PREFIX=<stove>/prefix A4=<gfopenallegro/allegro4> ACG=<acgame>
+PREFIX ?= $(HOME)/AmiCradle/kitchen/stoves/os32-gcc16-open6/prefix
 A4 ?= ../gfopenallegro/allegro4
-A4LIB ?= $(A4)/build-amiga
-CC = $(STOVE)/bin/m68k-amigaos-gcc
-OUT ?= build/amigaos
+A4OUT ?= $(A4)/build-amiga
+ACGOUT ?= ../acgame/build-amiga
+CC = $(PREFIX)/bin/m68k-amigaos-gcc
+STRIP = $(PREFIX)/bin/m68k-amigaos-strip
+NAME = LiquidWar
+BUILD ?= build/amigaos
+DIR = $(BUILD)/$(NAME)
 
 SRC_NAMES = about advanced alleg2 area army asm autoplay back basicopt bigdata capture chat checksum code config connect controls cursor decal dialog disk disp distor dnsutil error exec2 exit fighter game gfxmode grad graphics help httputil info init initrand internet joystick keyboard keyexch lang langde langdk langen langfr langpl language level logcli lw6 main map maptex menu mesh message mouse move music mutxunix netconf netgame netkey netmap netmess netplay network options palette parser path ping pion play profile protocol random rules score serial sock2cli sockex sockunix sound speeds startinf startup team texture thrdunix ticker lwtime viewport volume watchdog wave wwwcli x11icon   
 SRCS = $(addprefix src/,$(addsuffix .c,$(SRC_NAMES))) amiga/amiga_start.c amiga/amiga_net.c amiga/a4compat.c
-OBJS = $(patsubst %.c,$(OUT)/obj/%.o,$(SRCS))
+OBJS = $(patsubst %.c,$(BUILD)/obj/%.o,$(SRCS))
 
 SOFT = -specs=$(A4)/specs/m68k-soft-m68040.specs
 DEFS = -DUNIX -D__amigaos__ -DLW_AMIGA \
@@ -21,26 +26,47 @@ DEFS = -DUNIX -D__amigaos__ -DLW_AMIGA \
 	-DCONFIG_UNIX_SRV='"PROGDIR:liquidwar-server"' \
 	-DCONFIG_UNIX_GEN='"PROGDIR:liquidwar-mapgen"'
 CFLAGS = -noixemul -m68040 $(SOFT) -O2 -fomit-frame-pointer -fno-tree-loop-distribute-patterns \
-	-fcommon -Wall -Wno-unused -Wno-pointer-sign -Wno-format-truncation \
-	-Iamiga/include -Iamiga -Isrc -I$(A4)/include $(DEFS) \
+	-fcommon -Wall -Wno-unused -Wno-pointer-sign -Wno-format-truncation -Wno-char-subscripts \
+	-Iamiga -Isrc -I$(A4)/include $(DEFS) \
 	-include amiga/lw_amiga.h -include amiga/a4compat.h
-LIBS = $(A4LIB)/liballeg.a -lpthread -lm
+LIBS = $(A4OUT)/liballeg.a -lpthread -lm
 
-all: $(OUT)/LiquidWar
+all: $(DIR)/$(NAME) package
 
-$(OUT)/LiquidWar: $(OBJS)
+$(BUILD)/$(NAME).debug: $(OBJS)
 	$(CC) -noixemul -m68040 $(SOFT) -o $@ $(OBJS) $(LIBS)
 
-NET_SRCS = src/sockunix.c src/sockex.c src/dnsutil.c
-$(patsubst %.c,$(OUT)/obj/%.o,$(NET_SRCS)): CFLAGS += -include amiga/amiga_net.h
+$(DIR)/$(NAME): $(BUILD)/$(NAME).debug
+	@mkdir -p $(DIR)
+	$(STRIP) -o $@ $<
 
-$(OUT)/obj/%.o: %.c amiga/base.h
+NET_SRCS = src/sockunix.c src/sockex.c src/dnsutil.c
+$(patsubst %.c,$(BUILD)/obj/%.o,$(NET_SRCS)): CFLAGS += -include amiga/amiga_net.h
+
+$(BUILD)/obj/%.o: %.c amiga/base.h
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 amiga/base.h: src/base.h.in
 	sed 's/@VERSION@/5.6.7/' $< > $@
 
+# The drawer: the game, its data (amiga/tools/lw5dat.py, LZSS packed), the
+# custom maps, textures and music, Libs/ with allegro4.library and
+# acgame.library, the read-mes and the icons.
+package: $(DIR)/$(NAME)
+	mkdir -p $(DIR)/data $(DIR)/Libs $(DIR)/User
+	python3 amiga/tools/lw5dat.py data $(DIR)/data/liquidwar.dat --pack
+	rm -rf $(DIR)/custom && cp -R custom $(DIR)/custom
+	cp $(A4OUT)/allegro4.library $(ACGOUT)/acgame.library $(DIR)/Libs/
+	cp amiga/AMIGA_PORT.md $(DIR)/ReadMe
+	cp README.md $(DIR)/ReadMe-LiquidWar
+	cp COPYING $(DIR)/COPYING.txt
+	cp amiga/icons/$(NAME).info amiga/icons/ReadMe.info $(DIR)/
+	for f in ReadMe-LiquidWar COPYING.txt; do cp amiga/icons/ReadMe.info $(DIR)/$$f.info; done
+	cp amiga/icons/Data.info $(DIR)/User.info
+	cp amiga/icons/$(NAME)-drawer.info $(BUILD)/$(NAME).info
+	cp amiga/Install-$(NAME) amiga/Install-$(NAME).info $(BUILD)/
+
 clean:
-	rm -rf $(OUT) amiga/base.h
-.PHONY: all clean
+	rm -rf $(BUILD) amiga/base.h
+.PHONY: all package clean
