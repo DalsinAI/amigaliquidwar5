@@ -42,6 +42,11 @@ F_NOPACK_MAGIC = 0x736C682E
 F_PACK_MAGIC = 0x736C6821
 
 
+def read_bytes(path, n=-1):
+    with open(path, "rb") as f:
+        return f.read(n)
+
+
 def mw(v):
     return struct.pack(">H", v & 0xFFFF)
 
@@ -134,7 +139,7 @@ def grab_font(im):
 
 
 def sample_obj(path):
-    data = open(path, "rb").read()
+    data = read_bytes(path)
     if data[:4] != b"RIFF" or data[8:12] != b"WAVE":
         raise ValueError("%s: not a WAV" % path)
     pos, fmt = 12, None
@@ -160,7 +165,7 @@ def sample_obj(path):
 
 
 def midi_obj(path):
-    data = open(path, "rb").read()
+    data = read_bytes(path)
     if data[:4] != b"MThd":
         raise ValueError("%s: not MIDI" % path)
     hlen = struct.unpack_from(">I", data, 4)[0]
@@ -267,7 +272,7 @@ def liquidwarmap(path):
     system = base.split(".")[0]
     txt = os.path.join(os.path.dirname(path), system + ".txt")
     if os.path.exists(txt):
-        readable = open(txt, "rb").read(32).decode("latin-1")
+        readable = read_bytes(txt, 32).decode("latin-1")
         readable = readable.split("\n")[0].split("\r")[0]
     else:
         readable = system
@@ -304,7 +309,7 @@ def liquidwartex(path, seed, first=32, count=32):
 # ---- the makefile lists ---------------------------------------------------
 
 def make_list(makefile, var):
-    text = open(makefile).read().replace("\\\n", " ")
+    text = read_bytes(makefile).decode("latin-1").replace("\\\n", " ")
     m = re.search(r"^%s\s*=(.*)$" % var, text, re.M)
     if not m:
         raise ValueError("%s: no %s" % (makefile, var))
