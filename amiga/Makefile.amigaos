@@ -23,13 +23,16 @@ DEFS = -DUNIX -D__amigaos__ -DLW_AMIGA \
 CFLAGS = -noixemul -m68040 $(SOFT) -O2 -fomit-frame-pointer -fno-tree-loop-distribute-patterns \
 	-fcommon -Wall -Wno-unused -Wno-pointer-sign -Wno-format-truncation \
 	-Iamiga/include -Iamiga -Isrc -I$(A4)/include $(DEFS) \
-	-include amiga/a4compat.h
+	-include amiga/lw_amiga.h -include amiga/a4compat.h
 LIBS = $(A4LIB)/liballeg.a -lpthread -lm
 
 all: $(OUT)/LiquidWar
 
 $(OUT)/LiquidWar: $(OBJS)
 	$(CC) -noixemul -m68040 $(SOFT) -o $@ $(OBJS) $(LIBS)
+
+NET_SRCS = src/sockunix.c src/sockex.c src/dnsutil.c
+$(patsubst %.c,$(OUT)/obj/%.o,$(NET_SRCS)): CFLAGS += -include amiga/amiga_net.h
 
 $(OUT)/obj/%.o: %.c amiga/base.h
 	@mkdir -p $(dir $@)
