@@ -7,7 +7,7 @@
 (set #version "5.6.7-gfos1")
 (set #drawer "LiquidWar")
 (set #program "LiquidWar")
-(set #space 13672)  ; KB
+(set #space 5860)  ; KB
 
 (onerror
     (message (cat "LiquidWar was not installed completely." "\n\n" @error-msg
@@ -45,7 +45,7 @@
 (set #free (if (>= @installer-version 2883584) (getdiskspace #parent "K")
     (/ (getdiskspace #parent) 1024)))
 (if (and (>= #free 0) (< #free #space))
-    (abort (cat "There is not enough room in " #parent ": LiquidWar needs 14 MB free.")))
+    (abort (cat "There is not enough room in " #parent ": LiquidWar needs 6 MB free.")))
 
 ; the drawer: everything in it, but what the player has made
 (set #kept "")

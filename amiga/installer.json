@@ -5,7 +5,7 @@
   "program": "LiquidWar",
   "cpu": "68040",
   "fpu": false,
-  "space": 14000000,
+  "space": 6000000,
   "modules": [],
   "keep": [
     "User"
