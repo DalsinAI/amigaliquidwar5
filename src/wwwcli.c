@@ -244,7 +244,7 @@ parse_line (LW_WWWCLI_DATA * result, char **str)
 static void
 skip_space (char **str)
 {
-  while ((isspace (**str) || (**str) == '\r') && (**str) != '\n')
+  while ((isspace ((unsigned char) **str) || (**str) == '\r') && (**str) != '\n')
     {
       ++(*str);
     }
