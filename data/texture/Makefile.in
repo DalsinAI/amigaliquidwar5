@@ -1,4 +1,4 @@
-ALLEGRO_DAT = dat
+ALLEGRO_DAT = @ALLEGRO_DAT@
 
 DST_EXT = tex
 TMP_EXT = pcx
