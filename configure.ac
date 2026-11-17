@@ -76,11 +76,13 @@ dnl available
 
 dnl very often, dat (the datafile compiler) is not installed,
 dnl and we _really_ need it...
-AC_CHECK_PROG(ALLEGRO_DAT,dat,yes,no)
+dnl Use the native build-host datafile compiler even during cross builds.
+AC_ARG_VAR([ALLEGRO_DAT], [native build-host Allegro 4 dat executable])
+AC_PATH_PROG([ALLEGRO_DAT], [dat])
 
-if test $ALLEGRO_DAT != "yes"; then
-   AC_MSG_ERROR(Couldn't find the allegro datafile compiler - please install the complete Allegro package with all its developper tools. The end-user package is not enough to compile Liquid War.)
-fi;
+if test -z "$ALLEGRO_DAT"; then
+   AC_MSG_ERROR([Couldn't find native Allegro 4 dat; set ALLEGRO_DAT to its full path on the build host.])
+fi
 
 
 
@@ -146,13 +148,17 @@ if echo "$host_os" | grep "arwin"; then
   OSX="yes"
 fi
 
-ASM_POSSIBLE="\"$GNU_AS\" = \"yes\" -a \"$I386\" = \"yes\" -a \"OSX\" = \"no\""
+dnl Never select x86 assembly for the big-endian m68k target.
+ASM_POSSIBLE=no
+if test "$GNU_AS" = yes && test "$I386" = yes && test "$OSX" = no; then
+  ASM_POSSIBLE=yes
+fi
 
 dnl Assembly
 AC_MSG_CHECKING(for assembly)
 AC_ARG_ENABLE(asm,[  --disable-asm           Disable assembly code],
 [
-  if test "$enableval" != "no" -a $ASM_POSSIBLE ; then
+  if test "$enableval" != no && test "$ASM_POSSIBLE" = yes; then
     ASM=yes
     AC_MSG_RESULT([enabled])
   else
@@ -161,7 +167,7 @@ AC_ARG_ENABLE(asm,[  --disable-asm           Disable assembly code],
   fi
 ],
 [
-  if test $ASM_POSSIBLE ; then
+  if test "$ASM_POSSIBLE" = yes; then
     ASM=yes
     AC_MSG_RESULT([enabled])
   else
