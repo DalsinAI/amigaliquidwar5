@@ -124,7 +124,7 @@ clean_buffer (char *buffer, int len)
 
   for (i = 0; i < len; ++i)
     {
-      if (!isalnum (buffer[i]) && buffer[i] != '-' && buffer[i] != '+')
+      if (!isalnum ((unsigned char) buffer[i]) && buffer[i] != '-' && buffer[i] != '+')
         {
           buffer[i] = '.';
         }
