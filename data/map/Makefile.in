@@ -1,4 +1,4 @@
-ALLEGRO_DAT = dat
+ALLEGRO_DAT = @ALLEGRO_DAT@
 
 DST_EXT = map
 SRC_EXT1 = pcx
@@ -164,7 +164,7 @@ all: map.dat
 map.dat: $(MAP_FILES)
 	@rm -f $@
 	@echo Creating map.dat
-	@dat -a -t raw map.dat $(MAP_FILES)
+	@$(ALLEGRO_DAT) -a -t raw map.dat $(MAP_FILES)
 
 clean:
 	@rm -f *.$(DST_EXT) *.dat
