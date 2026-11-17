@@ -18,6 +18,7 @@ ASM =             @ASM@
 DEBUG =           @DEBUG@
 EFENCE =          @EFENCE@
 PTHREAD =         @PTHREAD@
+PLATFORM_LIBS =   @PLATFORM_LIBS@
 GP2X =            @GP2X@
 
 ifeq ($(HOST_OPT),yes)
@@ -256,7 +257,7 @@ all: $(EXE_FILES)
 
 liquidwar: $(OBJ_FILES)
 	@echo "Linking $@ (host=$(HOST), debug=$(DEBUG), static=$(STATIC), asm=$(ASM))"
-	@$(CC) $(LDFLAGS) $(LINK_OPTIONS) -o $@ $(OBJ_FILES) $(PTHREAD) $(EXTERN_LIBS)
+	@$(CC) $(LDFLAGS) $(LINK_OPTIONS) -o $@ $(OBJ_FILES) $(PTHREAD) $(EXTERN_LIBS) $(PLATFORM_LIBS)
 
 liquidwar-server: $(OBJ_FILES_SRV)
 	@echo "Linking $@ (host=$(HOST), debug=$(DEBUG), static=$(STATIC))"
@@ -264,7 +265,7 @@ liquidwar-server: $(OBJ_FILES_SRV)
 
 liquidwar-mapgen: $(OBJ_FILES_MAPGEN)
 	@echo "Linking $@ (host=$(HOST), debug=$(DEBUG), static=$(STATIC))"
-	@$(CC) $(LDFLAGS) $(LINK_OPTIONS) -o $@ $(OBJ_FILES_MAPGEN) -lm $(PTHREAD) $(EXTERN_LIBS)
+	@$(CC) $(LDFLAGS) $(LINK_OPTIONS) -o $@ $(OBJ_FILES_MAPGEN) -lm $(PTHREAD) $(EXTERN_LIBS) $(PLATFORM_LIBS)
 
 dep:
 	@find . \
@@ -318,6 +319,6 @@ print_cmd_as:
 
 print_cmd_ld:
 	@echo "The command line to link .o files in this directory is:"
-	@echo $(CC) $(LDFLAGS) $(LINK_OPTIONS) $(PTHREAD) $(EXTERN_LIBS)
+	@echo $(CC) $(LDFLAGS) $(LINK_OPTIONS) $(PTHREAD) $(EXTERN_LIBS) $(PLATFORM_LIBS)
 
 include Makefile.dep
