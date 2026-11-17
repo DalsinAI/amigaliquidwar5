@@ -1,4 +1,4 @@
-ALLEGRO_DAT = dat
+ALLEGRO_DAT = @ALLEGRO_DAT@
 
 FONT_SMALL = degrad10.pcx
 FONT_BIG = degrad20.pcx
