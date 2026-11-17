@@ -45,7 +45,7 @@ echo -n "checking for Allegro... "
 ALCFLAGS=`allegro-config --cflags 2>/dev/null`
 ALLIBS=`allegro-config --libs 2>/dev/null`
 ALVERSION=`allegro-config --version 2>/dev/null`
-ALDVERSION=`echo ALVERSION | awk 'BEGIN { FS = "."; } { printf "%d",($1 * 1000 + $2) * 1000 + $3;}'`
+ALDVERSION=`printf '%s\n' "$ALVERSION" | awk -F. '{ printf "%.0f", ($1 * 1000 + $2) * 1000 + $3; }'`
 
 AC_SUBST(ALCFLAGS)
 AC_SUBST(ALLIBS)
@@ -60,7 +60,7 @@ fi
 dnl
 dnl version check
 dnl
-if test $ALDVERSION -gt 4002000 ; then
+if test "$ALDVERSION" -lt 4002000 ; then
    AC_MSG_ERROR(An old version of Allegro ($ALVERSION) has been detected - please upgrade to 4.2.0 or better.)
 else
    echo "found $ALVERSION".
