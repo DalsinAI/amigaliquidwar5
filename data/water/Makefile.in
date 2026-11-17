@@ -1,4 +1,4 @@
-ALLEGRO_DAT = dat
+ALLEGRO_DAT = @ALLEGRO_DAT@
 
 WAVS = amb3.wav amb4.wav bath1.wav bath2.wav \
 	bubble.wav flush.wav forest1.wav kitch4.wav \
@@ -10,7 +10,7 @@ all: water.dat
 water.dat: $(WAVS)
 	@rm -f $@
 	@echo Creating $@
-	@dat -a -t sample $@ $(WAVS)
+	@$(ALLEGRO_DAT) -a -t sample $@ $(WAVS)
 
 clean:
 	@rm -f *.dat
