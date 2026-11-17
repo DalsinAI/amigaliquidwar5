@@ -31,40 +31,33 @@ AC_CHECK_FUNC(snprintf,[SNPRINTF=yes],[SNPRINTF=no])
 AC_SUBST(SNPRINTF)
 
 
-dnl Checking for allegro-config, the very-needed Allegro file
+dnl Cross builds must use the selected TARGET Allegro 4 configuration.
+dnl Do not accidentally discover a Linux allegro-config from PATH.
+AC_ARG_VAR([ALLEGRO_CONFIG], [Allegro 4 configuration tool for the target ABI])
+AC_PATH_PROG([ALLEGRO_CONFIG], [allegro-config])
+if test -z "$ALLEGRO_CONFIG"; then
+   AC_MSG_ERROR([Allegro 4 target allegro-config not found; set ALLEGRO_CONFIG explicitly for cross builds.])
+fi
 
-AC_CHECK_PROG(ALLEGRO_CONFIG,allegro-config,yes,no)
-
-if test $ALLEGRO_CONFIG != "yes"; then
-   AC_MSG_ERROR(Unable to find allegro-config - this tool is normally installed by Allegro and must be placed in a directory which is in your PATH. Allegro is a game programming library required by Liquid War. It is available on http://www.talula.demon.co.uk/allegro/. You need to install the complete Allegro developpement package to build Liquid War.)
-fi;
-
-dnl Various checks for Allegro
-
-echo -n "checking for Allegro... "
-ALCFLAGS=`allegro-config --cflags 2>/dev/null`
-ALLIBS=`allegro-config --libs 2>/dev/null`
-ALVERSION=`allegro-config --version 2>/dev/null`
+AC_MSG_CHECKING([for Allegro 4 target configuration])
+ALCFLAGS=`"$ALLEGRO_CONFIG" --cflags 2>/dev/null`
+ALLIBS=`"$ALLEGRO_CONFIG" --libs 2>/dev/null`
+ALVERSION=`"$ALLEGRO_CONFIG" --version 2>/dev/null`
+if test -z "$ALVERSION"; then
+   AC_MSG_ERROR([Allegro configuration failed; check ALLEGRO_CONFIG and the target SDK.])
+fi
+case "$ALVERSION" in
+  [[0-9]]*.[[0-9]]*.[[0-9]]*) ;;
+  *) AC_MSG_ERROR([Invalid Allegro version from ALLEGRO_CONFIG: $ALVERSION]) ;;
+esac
 ALDVERSION=`printf '%s\n' "$ALVERSION" | awk -F. '{ printf "%.0f", ($1 * 1000 + $2) * 1000 + $3; }'`
-
-AC_SUBST(ALCFLAGS)
-AC_SUBST(ALLIBS)
-
-dnl
-dnl main check
-dnl
-if test -z "$ALVERSION" ; then
-  AC_MSG_ERROR(Allegro does not seem to be correctly installed - please reinstall it and keep in mind that you need the complete Allegro developpement package.)
+if test "$ALDVERSION" -lt 4002000 || test "$ALDVERSION" -ge 5000000; then
+   AC_MSG_ERROR([Liquid War requires Allegro 4.2 or newer within Allegro 4, found $ALVERSION])
 fi
-
-dnl
-dnl version check
-dnl
-if test "$ALDVERSION" -lt 4002000 ; then
-   AC_MSG_ERROR(An old version of Allegro ($ALVERSION) has been detected - please upgrade to 4.2.0 or better.)
-else
-   echo "found $ALVERSION".
-fi
+AC_MSG_RESULT([$ALVERSION])
+AC_SUBST([ALCFLAGS])
+AC_SUBST([ALLIBS])
+AC_SUBST([ALLEGRO_CONFIG])
 
 dnl disabled this. assume allegro-config doesn't lie and all files are
 dnl available
