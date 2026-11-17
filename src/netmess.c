@@ -92,7 +92,7 @@ eat_space (char **message)
 {
   int result = 0;
 
-  while (isspace (**message))
+  while (isspace ((unsigned char) **message))
     {
       result++;
       ++(*message);
@@ -161,7 +161,7 @@ read_word (char **message)
     {
       begin = *message;
 
-      while ((!isspace (**message)) && (**message) != ','
+      while ((!isspace ((unsigned char) **message)) && (**message) != ','
              && (**message) != '\0')
         {
           ++(*message);
