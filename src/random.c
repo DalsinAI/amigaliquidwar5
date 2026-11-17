@@ -68,6 +68,22 @@
 #include "init.h"
 #include "exec2.h"
 
+/* The Open8 Amiga C runtime provides rand/srand but not the BSD
+ * random/srandom entry points. Keep source call sites and ABI signatures
+ * intact; validate cross-platform game/network RNG parity separately.
+ * The native rand() sequence is not assumed equal to BSD random(). */
+#ifdef __amigaos__
+long random(void)
+{
+  return (long) rand();
+}
+
+void srandom(unsigned int seed)
+{
+  srand(seed);
+}
+#endif
+
 /*==================================================================*/
 /* constants                                                        */
 /*==================================================================*/
