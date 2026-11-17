@@ -1,7 +1,7 @@
 
 GMAKE = @GMAKE@
 
-ALLEGRO_DAT = dat
+ALLEGRO_DAT = @ALLEGRO_DAT@
 
 MAKE_DIRS = back font map sfx texture maptex water music
 FILES = back/back.dat font/font.dat map/map.dat \
