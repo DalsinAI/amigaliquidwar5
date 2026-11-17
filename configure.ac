@@ -31,30 +31,37 @@ AC_CHECK_FUNC(snprintf,[SNPRINTF=yes],[SNPRINTF=no])
 AC_SUBST(SNPRINTF)
 
 
-dnl Cross builds must use the selected TARGET Allegro 4 configuration.
-dnl Do not accidentally discover a Linux allegro-config from PATH.
-AC_ARG_VAR([ALLEGRO_CONFIG], [Allegro 4 configuration tool for the target ABI])
-AC_PATH_PROG([ALLEGRO_CONFIG], [allegro-config])
-if test -z "$ALLEGRO_CONFIG"; then
-   AC_MSG_ERROR([Allegro 4 target allegro-config not found; set ALLEGRO_CONFIG explicitly for cross builds.])
-fi
+dnl A native Amiga Allegro4 SDK contains headers and liballeg.a, but does
+dnl not ship Unix allegro-config. Select it without inventing one.
+AC_ARG_VAR([ALLEGRO_SDK], [unpacked native Allegro 4 SDK root (include/ and lib/)])
+AC_ARG_VAR([ALLEGRO_CONFIG], [Allegro 4 configuration tool for non-SDK builds])
 
-AC_MSG_CHECKING([for Allegro 4 target configuration])
-ALCFLAGS=`"$ALLEGRO_CONFIG" --cflags 2>/dev/null`
-ALLIBS=`"$ALLEGRO_CONFIG" --libs 2>/dev/null`
-ALVERSION=`"$ALLEGRO_CONFIG" --version 2>/dev/null`
-if test -z "$ALVERSION"; then
-   AC_MSG_ERROR([Allegro configuration failed; check ALLEGRO_CONFIG and the target SDK.])
+if test -n "$ALLEGRO_SDK"; then
+   if test ! -f "$ALLEGRO_SDK/include/allegro.h" || test ! -f "$ALLEGRO_SDK/lib/liballeg.a"; then
+      AC_MSG_ERROR([ALLEGRO_SDK must contain include/allegro.h and lib/liballeg.a])
+   fi
+   ALCFLAGS="-I$ALLEGRO_SDK/include"
+   ALLIBS="-L$ALLEGRO_SDK/lib -lalleg"
+   ALLEGRO_CONFIG=
+   AC_MSG_NOTICE([using native Allegro 4 SDK from $ALLEGRO_SDK])
+else
+   AC_PATH_PROG([ALLEGRO_CONFIG], [allegro-config])
+   if test -z "$ALLEGRO_CONFIG"; then
+      AC_MSG_ERROR([Allegro 4 config missing; set ALLEGRO_SDK or ALLEGRO_CONFIG])
+   fi
+   AC_MSG_CHECKING([for Allegro 4 target configuration])
+   ALCFLAGS=`"$ALLEGRO_CONFIG" --cflags 2>/dev/null`
+   ALLIBS=`"$ALLEGRO_CONFIG" --libs 2>/dev/null`
+   ALVERSION=`"$ALLEGRO_CONFIG" --version 2>/dev/null`
+   if test -z "$ALVERSION"; then
+      AC_MSG_ERROR([Allegro configuration failed; check ALLEGRO_CONFIG and target SDK])
+   fi
+   ALDVERSION=`printf '%s\n' "$ALVERSION" | awk -F. '{ printf "%.0f", ($1 * 1000 + $2) * 1000 + $3; }'`
+   if test "$ALDVERSION" -lt 4002000 || test "$ALDVERSION" -ge 5000000; then
+      AC_MSG_ERROR([Liquid War requires Allegro 4.2 or newer within Allegro 4, found $ALVERSION])
+   fi
+   AC_MSG_RESULT([$ALVERSION])
 fi
-case "$ALVERSION" in
-  [[0-9]]*.[[0-9]]*.[[0-9]]*) ;;
-  *) AC_MSG_ERROR([Invalid Allegro version from ALLEGRO_CONFIG: $ALVERSION]) ;;
-esac
-ALDVERSION=`printf '%s\n' "$ALVERSION" | awk -F. '{ printf "%.0f", ($1 * 1000 + $2) * 1000 + $3; }'`
-if test "$ALDVERSION" -lt 4002000 || test "$ALDVERSION" -ge 5000000; then
-   AC_MSG_ERROR([Liquid War requires Allegro 4.2 or newer within Allegro 4, found $ALVERSION])
-fi
-AC_MSG_RESULT([$ALVERSION])
 AC_SUBST([ALCFLAGS])
 AC_SUBST([ALLIBS])
 AC_SUBST([ALLEGRO_CONFIG])
