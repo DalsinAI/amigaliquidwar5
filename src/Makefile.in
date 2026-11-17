@@ -11,6 +11,7 @@ HOST_OPT =        @HOST_OPT@
 STATIC =          @STATIC@
 SNPRINTF =        @SNPRINTF@
 ALCFLAGS =        @ALCFLAGS@
+ALLIBS =          @ALLIBS@
 ALLEGRO_CONFIG = @ALLEGRO_CONFIG@
 ASM =             @ASM@
 DEBUG =           @DEBUG@
@@ -232,10 +233,10 @@ EXE_FILES = liquidwar liquidwar-server liquidwar-mapgen
 
 ifeq ($(STATIC),yes)
     LINK_OPTIONS = --static
-    EXTERN_LIBS = `"$(ALLEGRO_CONFIG)" --static $(ALLEGRO_LIBRARY)` $(EFENCE_LIBRARY)
+    EXTERN_LIBS = $(ALLIBS) $(EFENCE_LIBRARY)
 else
     LINK_OPTIONS =
-    EXTERN_LIBS = `"$(ALLEGRO_CONFIG)" --libs $(ALLEGRO_LIBRARY)` $(EFENCE_LIBRARY)
+    EXTERN_LIBS = $(ALLIBS) $(EFENCE_LIBRARY)
 endif
 
 CONFIG_OPTIONS = \
