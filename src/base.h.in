@@ -89,7 +89,10 @@
  * "more random" values than rand(). This is particularly noticeable
  * on FreeBSD.
  */
-#ifdef WIN32
+/* AmigaOS' selected C runtime also lacks the BSD random/srandom pair.
+ * Keep the existing Windows fallback. Network/playback determinism needs
+ * dedicated guest tests because rand() may have a different sequence/range. */
+#if defined(WIN32) || defined(__amigaos__)
 #define random rand
 #define srandom srand
 #endif
