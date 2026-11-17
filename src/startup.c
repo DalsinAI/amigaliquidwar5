@@ -338,7 +338,7 @@ set_path (void)
     }
   else
     {
-#ifdef UNIX
+#if defined(UNIX) && !defined(__amigaos__)
       home_env = getenv ("HOME");
       if (home_env != NULL)
         {

@@ -33,3 +33,7 @@ doc/tex/*.toc
 doc/texi/*.texi
 doc/txt/*.txt
 __pycache__
+build/
+build-amiga-package/
+amiga/base.h
+__pycache__/

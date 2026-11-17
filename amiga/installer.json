@@ -1,0 +1,16 @@
+{
+  "name": "LiquidWar",
+  "version": "5.6.7-gfos1",
+  "drawer": "LiquidWar",
+  "program": "LiquidWar",
+  "cpu": "68040",
+  "fpu": false,
+  "space": 6000000,
+  "modules": [],
+  "keep": [
+    "User"
+  ],
+  "parent": "Work:Games",
+  "badge": "icons/art/liquidwar.png",
+  "script": "Install-LiquidWar"
+}
