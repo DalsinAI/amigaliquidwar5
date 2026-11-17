@@ -1,4 +1,4 @@
-ALLEGRO_DAT = dat
+ALLEGRO_DAT = @ALLEGRO_DAT@
 
 WAVS = clock1.wav crowd1.wav cuckoo.wav foghorn.wav splash1.wav war.wav 
 
@@ -7,7 +7,7 @@ all: sfx.dat
 sfx.dat: $(WAVS)
 	@rm -f $@
 	@echo Creating $@
-	@dat -a -t sample $@ $(WAVS)
+	@$(ALLEGRO_DAT) -a -t sample $@ $(WAVS)
 
 clean:
 	@rm -f *.dat
