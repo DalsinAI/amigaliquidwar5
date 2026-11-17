@@ -117,6 +117,13 @@ dnl Checking for pthread support
 AC_CHECK_LIB(pthread, pthread_create,PTHREAD="-lpthread",PTHREAD="-pthread")
 AC_SUBST(PTHREAD)
 
+dnl Additional socket/math libraries for the native AmigaOS runtime.
+PLATFORM_LIBS=
+case "$host_os" in
+  amigaos*) PLATFORM_LIBS="-lsocket -lm" ;;
+esac
+AC_SUBST([PLATFORM_LIBS])
+
 
 
 dnl now checking if the GNU assembler is available
